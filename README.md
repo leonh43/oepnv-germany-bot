@@ -9,12 +9,21 @@ Privat discord bot
 
 # Features to add 
 Polls
+
 Giveaways
+
 Applications
+
 Ticket
+
 Logs (via Webhook)
+
 Musik
+
 Willkommens Nachricht
+
 Join roles
+
 React roles
+
 Verify (unnötig)
