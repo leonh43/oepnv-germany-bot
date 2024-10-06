@@ -1,9 +1,9 @@
 # oepnv-germany-bot
 Privat discord bot
 
-#Existing features
+# Existing features
 
-#Roadmap (for the devs)
+# Roadmap (for the devs)
 1. Make it work
 2. Add Features
 
