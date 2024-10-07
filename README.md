@@ -7,10 +7,9 @@ Built with Node.js
 - Add features
 
 ## Existing Features
-
+- Polls
 
 ## Features in Development
-- Polls (Gamer)
 - Reaction roles (ole)
 
 ## Planned Features
