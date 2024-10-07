@@ -10,7 +10,8 @@ Built with Node.js
 
 
 ## Features in Development
-- Polls
+- Polls (Gamer)
+- Reaction roles (ole)
 
 ## Planned Features
 - Giveaways
@@ -20,5 +21,4 @@ Built with Node.js
 - Music
 - Welcome message
 - Join roles
-- Reaction roles
 - Verification (unnecessary)
