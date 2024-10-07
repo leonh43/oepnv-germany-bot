@@ -12,7 +12,6 @@ Built with Node.js
 ## Features in Development
 - Reaction roles (ole)
 - Welcome message (Leon)
-- Join roles (Leon)
 
 ## Planned Features
 - Giveaways
