@@ -9,10 +9,10 @@ Built with Node.js
 ## Existing Features
 - Polls
 - Welcome message
+- Counting System
 
 ## Features in Development
 - Reaction roles (ole)
-- - Counting System (Leon)
 
 ## Planned Features
 - Giveaways
