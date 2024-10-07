@@ -8,10 +8,10 @@ Built with Node.js
 
 ## Existing Features
 - Polls
+- Welcome message
 
 ## Features in Development
 - Reaction roles (ole)
-- Welcome message (Leon)
 
 ## Planned Features
 - Giveaways
