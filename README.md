@@ -1,24 +1,24 @@
 # ÖPNV-Germany-Bot
-Privat discord bot
-Working with Node.js
+Private Discord bot  
+Built with Node.js
 
-# Existing features
-
-# Roadmap (for the devs)
+## Roadmap (for the developers)
 1. Make it work
-2. Add Features
+2. Add features
 
-# Features in Development
+## Existing Features
+
+
+## Features in Development
 - Polls
 
-# Features to add 
-
+## Planned Features
 - Giveaways
 - Applications
-- Ticket
+- Ticket system
 - Logs (via Webhook)
-- Musik
-- Willkommens Nachricht
+- Music
+- Welcome message
 - Join roles
-- React roles
-- Verify (unnötig)
+- Reaction roles
+- Verification (unnecessary)
