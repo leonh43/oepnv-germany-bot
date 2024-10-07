@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
+const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 const fs = require('fs');
 
 const client = new Client({
@@ -49,8 +49,24 @@ const commands = [
             option.setName('option5')
                 .setDescription('Fünfte Option (optional)')
                 .setRequired(false))
-]
-    .map(command => command.toJSON());
+        .toJSON(),
+    new SlashCommandBuilder()
+        .setName('giveaway')
+        .setDescription('Starte ein Giveaway')
+        .addStringOption(option =>
+            option.setName('preis')
+                .setDescription('Der Preis des Giveaways')
+                .setRequired(true))
+        .addIntegerOption(option =>
+            option.setName('dauer')
+                .setDescription('Dauer des Giveaways in Minuten')
+                .setRequired(true))
+        .addIntegerOption(option =>
+            option.setName('anzahl')
+                .setDescription('Anzahl der Gewinner')
+                .setRequired(true))
+        .toJSON()
+];
 
 const rest = new REST({ version: '10' }).setToken(BOT_TOKEN);
 
@@ -61,7 +77,7 @@ const rest = new REST({ version: '10' }).setToken(BOT_TOKEN);
         const existingCommands = await rest.get(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID));
 
         for (const command of existingCommands) {
-            if (command.name === 'poll') {
+            if (command.name === 'poll' || command.name === 'giveaway') {
                 await rest.delete(Routes.applicationCommand(CLIENT_ID, command.id));
                 console.log(`Deleted old command: ${command.name}`);
             }
@@ -148,59 +164,109 @@ client.on('interactionCreate', async interaction => {
         if (option4) await pollMessage.react('4️⃣');
         if (option5) await pollMessage.react('5️⃣');
     }
-});
 
-client.on('messageCreate', async (message) => {
-    if (message.author.bot || message.channel.id !== COUNTING_CHANNEL_ID) return;
+    if (interaction.commandName === 'giveaway') {
+        const preis = interaction.options.getString('preis');
+        const dauer = interaction.options.getInteger('dauer');
+        const anzahl = interaction.options.getInteger('anzahl');
 
-    const number = parseInt(message.content);
+        await interaction.reply({ content: 'Das Giveaway wurde gestartet!', ephemeral: true });
 
-    if (isNaN(number)) {
-        await message.reply('Bitte gib eine gültige Zahl ein.');
-        return;
+        const endTimestamp = new Date(Date.now() + dauer * 60 * 1000).getTime();
+
+        const giveawayEmbed = new EmbedBuilder()
+            .setColor(0xFFD700)
+            .setTitle('🎉 Giveaway 🎉')
+            .setDescription(`Preis: **${preis}**`)
+            .addFields(
+                { name: 'Erstellt von', value: interaction.user.username, inline: false },
+                { name: 'Endet um', value: `<t:${Math.floor(endTimestamp / 1000)}:F>`, inline: false }
+            )
+            .setFooter({ text: `Gewinner: ${anzahl}` })
+            .setTimestamp();
+
+        const button = new ButtonBuilder()
+            .setCustomId('giveaway_entry')
+            .setLabel('Teilnehmen 🎉')
+            .setStyle(ButtonStyle.Primary);
+
+        const row = new ActionRowBuilder().addComponents(button);
+
+        const giveawayMessage = await interaction.channel.send({ embeds: [giveawayEmbed], components: [row] });
+
+        const giveawayParticipants = new Set(); // Neues Set für die Teilnehmer des aktuellen Giveaways
+        const collector = giveawayMessage.createMessageComponentCollector({ time: dauer * 60 * 1000 });
+
+        collector.on('collect', async i => {
+            if (i.customId === 'giveaway_entry') {
+                if (!giveawayParticipants.has(i.user.id)) {
+                    giveawayParticipants.add(i.user.id);
+                    await i.reply({ content: 'Du hast am Giveaway teilgenommen! 🎉', ephemeral: true });
+                } else {
+                    await i.reply({ content: 'Du hast bereits am Giveaway teilgenommen!', ephemeral: true });
+                }
+            }
+        });
+
+        collector.on('end', async () => {
+            const participantsArray = Array.from(giveawayParticipants);
+            const winners = [];
+
+            for (let i = 0; i < Math.min(anzahl, participantsArray.length); i++) {
+                const winner = participantsArray[Math.floor(Math.random() * participantsArray.length)];
+                winners.push(winner);
+                participantsArray.splice(participantsArray.indexOf(winner), 1);
+            }
+
+            const winnerMentions = winners.length > 0 ? winners.map(id => `<@${id}>`).join(', ') : 'Keine Teilnehmer';
+            const resultEmbed = new EmbedBuilder()
+                .setColor(0x00FF00)
+                .setTitle('🏆 Gewinner 🏆')
+                .setDescription(`Gewinner: ${winnerMentions}`)
+                .setTimestamp();
+
+            await interaction.channel.send({ embeds: [resultEmbed] });
+
+            for (const winner of winners) {
+                const winnerUser = await client.users.fetch(winner);
+                await winnerUser.send(`Herzlichen Glückwunsch! Du hast das Giveaway mit dem Preis **${preis}** gewonnen! 🎉 Hier ist der Link zu deiner Gewinnbenachrichtigung: ${giveawayMessage.url}`);
+            }
+
+            const creatorUser = await client.users.fetch(interaction.user.id);
+            await creatorUser.send(`Dein Giveaway mit dem Preis **${preis}** ist abgeschlossen! Gewinner: ${winnerMentions}`);
+        });
     }
 
-    if (number === currentCount + 1) {
-        if (!recentCounters.has(message.author.id)) {
-            currentCount = number;
+    if (interaction.customId === 'count') {
+        if (countingAllowed) {
+            const userId = interaction.user.id;
+
+            if (recentCounters.has(userId)) {
+                return interaction.reply({ content: 'Du kannst nicht zweimal hintereinander zählen!', ephemeral: true });
+            }
+
+            recentCounters.add(userId);
+            currentCount++;
             saveCount();
-            await message.react('✅');
-            recentCounters.add(message.author.id);
+
+            interaction.reply({ content: `Aktuelle Zahl: ${currentCount}`, ephemeral: false });
             countingAllowed = false;
 
             setTimeout(() => {
                 countingAllowed = true;
                 recentCounters.clear();
-            }, 5000);
-        } else {
-            await message.reply('Du hast bereits gezählt! Warte bitte, bis jemand anders gezählt hat.');
+            }, 2000);
         }
-    } else {
-        await message.react('❌');
-        await message.channel.send(`Falsche Zahl! Du hast mit ${number} gezählt. Nächster User, zähle mit ${currentCount + 1} weiter`);
+    }
+});
 
-        recentCounters.add(message.author.id);
-
-        const currentUserId = message.author.id;
-
-        const filter = (msg) => !msg.author.bot && msg.channel.id === COUNTING_CHANNEL_ID && msg.author.id !== currentUserId;
-
-        const collector = message.channel.createMessageCollector({ filter, time: 60000 });
-
-        collector.on('collect', async (msg) => {
-            const nextNumber = parseInt(msg.content);
-            if (nextNumber === currentCount + 1) {
-                recentCounters.delete(currentUserId);
-                await msg.react('✅');
-                collector.stop();
-            }
-        });
-
-        collector.on('end', collected => {
-            if (recentCounters.has(currentUserId)) {
-                message.reply('Warte bitte, bis jemand anders die nächste Zahl zählt.');
-            }
-        });
+client.on('messageCreate', message => {
+    if (message.channel.id === COUNTING_CHANNEL_ID) {
+        if (message.content.toLowerCase() === 'reset') {
+            currentCount = 0;
+            saveCount();
+            message.channel.send('Die Zählung wurde zurückgesetzt.');
+        }
     }
 });
 
