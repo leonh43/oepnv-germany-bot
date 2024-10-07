@@ -9,11 +9,12 @@ Built with Node.js
 ## Existing Features
 - Polls
 - Welcome message
+- Giveaway
+  
 - Counting System (Not public, because Bot want´s to nerven me)
 
 ## Features in Development
 - Reaction roles (ole)
-- Giveaways (Leon)
 
 ## Planned Features
 - Giveaways
