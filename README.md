@@ -20,3 +20,5 @@ Built with Node.js
 - Logs (via Webhook)
 - Music
 - Verification (unnecessary)
+- Invite Tracker
+- Counting System
