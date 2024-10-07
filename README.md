@@ -17,7 +17,6 @@ Built with Node.js
 - Reaction roles (ole)
 
 ## Planned Features
-- Giveaways
 - Applications
 - Ticket system
 - Logs (via Webhook)
