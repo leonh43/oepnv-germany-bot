@@ -4,14 +4,9 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
 });
 
-//Server ID
-const GUILD_ID = '1104669016565489675';
-
-//Bot ID
-const CLIENT_ID = '1292565513771286589';
-
-//Bot Token
-const BOT_TOKEN = 'MTI5MjU2NTUxMzc3MTI4NjU4OQ.GYhU6X.znTxmiWAQc6C0c2FbCGiZKReZQtRWQHZXZIX9A';
+const GUILD_ID = '1104669016565489675'; //Server ID
+const CLIENT_ID = '1292565513771286589'; //Bot ID
+const BOT_TOKEN = 'MTI5MjU2NTUxMzc3MTI4NjU4OQ.GYhU6X.znTxmiWAQc6C0c2FbCGiZKReZQtRWQHZXZIX9A'; //Bot Token
 
 const commands = [
     new SlashCommandBuilder()
