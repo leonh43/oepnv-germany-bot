@@ -3,8 +3,8 @@ Private Discord bot
 Built with Node.js
 
 ## Roadmap (for the developers)
-1. Make it work
-2. Add features
+- Make it work
+- Add features
 
 ## Existing Features
 
