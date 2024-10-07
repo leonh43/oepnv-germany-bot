@@ -13,6 +13,7 @@ Built with Node.js
 
 ## Features in Development
 - Reaction roles (ole)
+- Giveaways (Leon)
 
 ## Planned Features
 - Giveaways
