@@ -177,7 +177,7 @@ client.on('messageCreate', async (message) => {
         }
     } else {
         await message.react('❌');
-        await message.channel.send(`Falsche Zahl! Du hast mit ${number} gezählt. Bitte zähle mit ${currentCount + 1} weiter.`);
+        await message.channel.send(`Falsche Zahl! Du hast mit ${number} gezählt. Nächster User, zähle mit ${currentCount + 1} weiter`);
 
         recentCounters.add(message.author.id);
 
