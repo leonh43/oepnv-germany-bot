@@ -1,4 +1,4 @@
-# oepnv-germany-bot
+# ÖPNV-Germany-Bot
 Privat discord bot
 Working with Node.js
 
@@ -8,23 +8,17 @@ Working with Node.js
 1. Make it work
 2. Add Features
 
+# Features in Development
+- Polls
+
 # Features to add 
-Polls
 
-Giveaways
-
-Applications
-
-Ticket
-
-Logs (via Webhook)
-
-Musik
-
-Willkommens Nachricht
-
-Join roles
-
-React roles
-
-Verify (unnötig)
+- Giveaways
+- Applications
+- Ticket
+- Logs (via Webhook)
+- Musik
+- Willkommens Nachricht
+- Join roles
+- React roles
+- Verify (unnötig)
