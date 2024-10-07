@@ -4,9 +4,10 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
 });
 
-const GUILD_ID = '1104669016565489675'; //Server ID
-const CLIENT_ID = '1292565513771286589'; //Bot ID
-const BOT_TOKEN = 'MTI5MjU2NTUxMzc3MTI4NjU4OQ.GYhU6X.znTxmiWAQc6C0c2FbCGiZKReZQtRWQHZXZIX9A'; //Bot Token
+const GUILD_ID = '1104669016565489675'; // Server ID
+const CLIENT_ID = '1292565513771286589'; // Bot ID
+const BOT_TOKEN = 'MTI5MjU2NTUxMzc3MTI4NjU4OQ.GYhU6X.znTxmiWAQc6C0c2FbCGiZKReZQtRWQHZXZIX9A'; // Bot Token
+const POLL_ROLE_ID = '1292712164599267349'; // Umfagen Rollen ID
 
 const commands = [
     new SlashCommandBuilder()
@@ -80,6 +81,10 @@ client.on('interactionCreate', async interaction => {
         const option4 = interaction.options.getString('option4');
         const option5 = interaction.options.getString('option5');
 
+        await interaction.reply({ content: 'Deine Umfrage wurde erstellt!', ephemeral: true });
+
+        await interaction.channel.send(`<@&${POLL_ROLE_ID}>`);
+
         const pollEmbed = new EmbedBuilder()
             .setColor(0x5865F2)
             .setTitle(`**${frage}**`)
@@ -94,7 +99,7 @@ client.on('interactionCreate', async interaction => {
         if (option4) pollEmbed.addFields({ name: 'Option 4️⃣', value: option4, inline: false });
         if (option5) pollEmbed.addFields({ name: 'Option 5️⃣', value: option5, inline: false });
 
-        const pollMessage = await interaction.reply({ embeds: [pollEmbed], fetchReply: true });
+        const pollMessage = await interaction.channel.send({ embeds: [pollEmbed] });
 
         await pollMessage.react('1️⃣');
         await pollMessage.react('2️⃣');
