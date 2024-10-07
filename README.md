@@ -11,6 +11,7 @@ Built with Node.js
 
 ## Features in Development
 - Reaction roles (ole)
+- Welcome message (Leon)
 
 ## Planned Features
 - Giveaways
@@ -18,6 +19,5 @@ Built with Node.js
 - Ticket system
 - Logs (via Webhook)
 - Music
-- Welcome message
 - Join roles
 - Verification (unnecessary)
