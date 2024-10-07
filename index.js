@@ -1,13 +1,24 @@
 const { Client, GatewayIntentBits, REST, Routes, SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 
 const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMembers
+    ]
 });
 
-const GUILD_ID = '1104669016565489675'; // Server ID
-const CLIENT_ID = '1292565513771286589'; // Bot ID
-const BOT_TOKEN = 'MTI5MjU2NTUxMzc3MTI4NjU4OQ.GYhU6X.znTxmiWAQc6C0c2FbCGiZKReZQtRWQHZXZIX9A'; // Bot Token
-const POLL_ROLE_ID = '1292712164599267349'; // Umfagen Rollen ID
+const GUILD_ID = '1104669016565489675';
+const CLIENT_ID = '1292565513771286589';
+const BOT_TOKEN = 'MTI5MjU2NTUxMzc3MTI4NjU4OQ.GYhU6X.znTxmiWAQc6C0c2FbCGiZKReZQtRWQHZXZIX9A';
+const POLL_ROLE_ID = '1292712164599267349';
+const WELCOME_CHANNEL_ID = '1292874725370101822';
+const COUNTING_CHANNEL_ID = '1292892233326006323';
+
+let currentCount = 0;
+let countingAllowed = true;
+const recentCounters = new Set();
 
 const commands = [
     new SlashCommandBuilder()
@@ -68,6 +79,23 @@ const rest = new REST({ version: '10' }).setToken(BOT_TOKEN);
 
 client.once('ready', () => {
     console.log('Bot is online!');
+    currentCount = 0;
+});
+
+client.on('guildMemberAdd', async member => {
+    const welcomeChannel = member.guild.channels.cache.get(WELCOME_CHANNEL_ID);
+    if (!welcomeChannel) return;
+
+    const welcomeEmbed = new EmbedBuilder()
+        .setColor(0x00FF00)
+        .setTitle('👋 Willkommen!')
+        .setDescription(`Willkommen auf dem ÖPNV Germany Discord-Server, <@${member.id}>! 🎉`)
+        .setFooter({ text: 'Hast du Fragen? Frag einfach einen Moderator!' })
+        .setTimestamp();
+
+    const welcomeMessage = await welcomeChannel.send({ embeds: [welcomeEmbed] });
+
+    await welcomeMessage.react('👋');
 });
 
 client.on('interactionCreate', async interaction => {
@@ -106,6 +134,33 @@ client.on('interactionCreate', async interaction => {
         if (option3) await pollMessage.react('3️⃣');
         if (option4) await pollMessage.react('4️⃣');
         if (option5) await pollMessage.react('5️⃣');
+    }
+});
+
+client.on('messageCreate', async (message) => {
+    if (message.author.bot || message.channel.id !== COUNTING_CHANNEL_ID) return;
+
+    const number = parseInt(message.content);
+
+    if (countingAllowed) {
+        if (number === currentCount + 1) {
+            if (!recentCounters.has(message.author.id)) {
+                currentCount = number;
+                await message.react('✅');
+                recentCounters.add(message.author.id);
+                countingAllowed = false;
+            } else {
+                await message.reply('Du hast bereits gezählt! Warte bitte, bis jemand anders gezählt hat.');
+            }
+        } else {
+            await message.react('❌');
+            await message.channel.send(`Falsche Zahl! Du hast mit ${number} gezählt. Der Zähler sollte ${currentCount + 1} sein. Alle müssen wieder bei eins anfangen.`);
+            currentCount = 0;
+            recentCounters.clear();
+            countingAllowed = true;
+        }
+    } else {
+        await message.reply('Warte bitte, bis jemand anders gezählt hat.');
     }
 });
 
