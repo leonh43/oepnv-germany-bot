@@ -82,7 +82,7 @@ const loadCount = () => {
     if (fs.existsSync('currentCount.json')) {
         const data = fs.readFileSync('currentCount.json', 'utf-8');
         const parsedData = JSON.parse(data);
-        currentCount = parsedData.currentCount || 0; // Setze auf 0, wenn es nicht definiert ist
+        currentCount = parsedData.currentCount || 0;
     }
 };
 
@@ -92,7 +92,7 @@ const saveCount = () => {
 
 client.once('ready', () => {
     console.log('Bot is online!');
-    loadCount(); // Lade die Zahl beim Start des Bots
+    loadCount();
 });
 
 client.on('guildMemberAdd', async member => {
@@ -155,7 +155,6 @@ client.on('messageCreate', async (message) => {
 
     const number = parseInt(message.content);
 
-    // Überprüfen, ob die Eingabe eine Zahl ist
     if (isNaN(number)) {
         await message.reply('Bitte gib eine gültige Zahl ein.');
         return;
@@ -164,16 +163,15 @@ client.on('messageCreate', async (message) => {
     if (number === currentCount + 1) {
         if (!recentCounters.has(message.author.id)) {
             currentCount = number;
-            saveCount(); // Speichere den aktuellen Zählerstand
+            saveCount();
             await message.react('✅');
             recentCounters.add(message.author.id);
-            countingAllowed = false; // Nach einem gültigen Zählen, blockiere andere Benutzer
+            countingAllowed = false;
 
-            // Setze eine Zeitverzögerung, um anderen Benutzern zu erlauben, nach einer bestimmten Zeit zu zählen
             setTimeout(() => {
-                countingAllowed = true; // Nach 5 Sekunden wieder erlauben
-                recentCounters.clear(); // Setze das Set zurück, um allen zu erlauben zu zählen
-            }, 5000); // Zeitverzögerung von 5 Sekunden
+                countingAllowed = true;
+                recentCounters.clear();
+            }, 5000);
         } else {
             await message.reply('Du hast bereits gezählt! Warte bitte, bis jemand anders gezählt hat.');
         }
@@ -181,29 +179,24 @@ client.on('messageCreate', async (message) => {
         await message.react('❌');
         await message.channel.send(`Falsche Zahl! Du hast mit ${number} gezählt. Bitte zähle mit ${currentCount + 1} weiter.`);
 
-        // Blockiere den Benutzer, der die falsche Zahl eingegeben hat
         recentCounters.add(message.author.id);
 
-        // Erlaube anderen, zu zählen, aber nicht den Benutzer, der die falsche Zahl eingegeben hat
         const currentUserId = message.author.id;
 
-        // Event Listener für die nächste richtige Zahl
         const filter = (msg) => !msg.author.bot && msg.channel.id === COUNTING_CHANNEL_ID && msg.author.id !== currentUserId;
 
-        const collector = message.channel.createMessageCollector({ filter, time: 60000 }); // 1 Minute Zeitlimit für den Collector
+        const collector = message.channel.createMessageCollector({ filter, time: 60000 });
 
-        collector.on('collect', async (msg) => { // Hier als async deklarieren
+        collector.on('collect', async (msg) => {
             const nextNumber = parseInt(msg.content);
             if (nextNumber === currentCount + 1) {
-                // Entferne den blockierten Benutzer, wenn die richtige Zahl kommt
                 recentCounters.delete(currentUserId);
-                await msg.react('✅'); // Reagiere mit einem Häkchen
-                collector.stop(); // Stoppe den Collector, wenn die richtige Zahl kommt
+                await msg.react('✅');
+                collector.stop();
             }
         });
 
         collector.on('end', collected => {
-            // Nach der Beendigung des Collectors
             if (recentCounters.has(currentUserId)) {
                 message.reply('Warte bitte, bis jemand anders die nächste Zahl zählt.');
             }
