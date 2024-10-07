@@ -12,6 +12,7 @@ Built with Node.js
 
 ## Features in Development
 - Reaction roles (ole)
+- - Counting System (Leon)
 
 ## Planned Features
 - Giveaways
@@ -21,4 +22,3 @@ Built with Node.js
 - Music
 - Verification (unnecessary)
 - Invite Tracker
-- Counting System
