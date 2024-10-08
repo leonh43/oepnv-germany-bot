@@ -5,6 +5,7 @@ Built with Node.js
 ## Roadmap (for the developers)
 - Make it work
 - Add features
+- Web interface
 
 ## Existing Features
 - Polls
