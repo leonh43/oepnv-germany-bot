@@ -11,7 +11,9 @@ Built with Node.js
 - Polls
 - Welcome message
 - Giveaway
-  
+- /clear command
+- !Ping; /ping (Test command)
+
 - Counting System (Not public, because Bot want´s to nerven me)
 
 ## Features in Development
@@ -25,4 +27,3 @@ Built with Node.js
 - Verification (unnecessary)
 - Invite Tracker
 - Warn System
-- /clear command

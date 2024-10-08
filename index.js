@@ -10,9 +10,9 @@ const client = new Client({
     ]
 });
 
-const GUILD_ID = '1104669016565489675';
-const CLIENT_ID = '1292565513771286589';
-const BOT_TOKEN = 'MTI5MjU2NTUxMzc3MTI4NjU4OQ.GYhU6X.znTxmiWAQc6C0c2FbCGiZKReZQtRWQHZXZIX9A';
+const GUILD_ID = '1104669016565489675'; // Server ID
+const CLIENT_ID = '1292565513771286589'; // Bot ID
+const BOT_TOKEN = 'MTI5MjU2NTUxMzc3MTI4NjU4OQ.GYhU6X.znTxmiWAQc6C0c2FbCGiZKReZQtRWQHZXZIX9A'; // Bot Token
 const POLL_ROLE_ID = '1292712164599267349';
 const WELCOME_CHANNEL_ID = '1292874725370101822';
 const COUNTING_CHANNEL_ID = '1292892233326006323';
@@ -65,6 +65,18 @@ const commands = [
             option.setName('anzahl')
                 .setDescription('Anzahl der Gewinner')
                 .setRequired(true))
+        .toJSON(),
+    new SlashCommandBuilder()
+        .setName('clear')
+        .setDescription('Lösche eine bestimmte Anzahl von Nachrichten')
+        .addIntegerOption(option =>
+            option.setName('anzahl')
+                .setDescription('Die Anzahl der zu löschenden Nachrichten')
+                .setRequired(true))
+        .toJSON(),
+    new SlashCommandBuilder()
+        .setName('ping')
+        .setDescription('Antwortet mit Pong!')
         .toJSON()
 ];
 
@@ -74,15 +86,6 @@ const rest = new REST({ version: '10' }).setToken(BOT_TOKEN);
     try {
         console.log('Started refreshing application (/) commands.');
 
-        const existingCommands = await rest.get(Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID));
-
-        for (const command of existingCommands) {
-            if (command.name === 'poll' || command.name === 'giveaway') {
-                await rest.delete(Routes.applicationCommand(CLIENT_ID, command.id));
-                console.log(`Deleted old command: ${command.name}`);
-            }
-        }
-
         await rest.put(
             Routes.applicationGuildCommands(CLIENT_ID, GUILD_ID),
             { body: commands },
@@ -90,7 +93,7 @@ const rest = new REST({ version: '10' }).setToken(BOT_TOKEN);
 
         console.log('Successfully reloaded application (/) commands for the guild.');
     } catch (error) {
-        console.error(error);
+        console.error('Error registering commands:', error);
     }
 })();
 
@@ -123,7 +126,6 @@ client.on('guildMemberAdd', async member => {
         .setTimestamp();
 
     const welcomeMessage = await welcomeChannel.send({ embeds: [welcomeEmbed] });
-
     await welcomeMessage.react('👋');
 });
 
@@ -139,7 +141,6 @@ client.on('interactionCreate', async interaction => {
         const option5 = interaction.options.getString('option5');
 
         await interaction.reply({ content: 'Deine Umfrage wurde erstellt!', ephemeral: true });
-
         await interaction.channel.send(`<@&${POLL_ROLE_ID}>`);
 
         const pollEmbed = new EmbedBuilder()
@@ -157,7 +158,6 @@ client.on('interactionCreate', async interaction => {
         if (option5) pollEmbed.addFields({ name: 'Option 5️⃣', value: option5, inline: false });
 
         const pollMessage = await interaction.channel.send({ embeds: [pollEmbed] });
-
         await pollMessage.react('1️⃣');
         await pollMessage.react('2️⃣');
         if (option3) await pollMessage.react('3️⃣');
@@ -173,7 +173,6 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ content: 'Das Giveaway wurde gestartet!', ephemeral: true });
 
         const endTimestamp = new Date(Date.now() + dauer * 60 * 1000).getTime();
-
         const giveawayEmbed = new EmbedBuilder()
             .setColor(0xFFD700)
             .setTitle('🎉 Giveaway 🎉')
@@ -191,10 +190,9 @@ client.on('interactionCreate', async interaction => {
             .setStyle(ButtonStyle.Primary);
 
         const row = new ActionRowBuilder().addComponents(button);
-
         const giveawayMessage = await interaction.channel.send({ embeds: [giveawayEmbed], components: [row] });
 
-        const giveawayParticipants = new Set(); // Neues Set für die Teilnehmer des aktuellen Giveaways
+        const giveawayParticipants = new Set();
         const collector = giveawayMessage.createMessageComponentCollector({ time: dauer * 60 * 1000 });
 
         collector.on('collect', async i => {
@@ -218,56 +216,41 @@ client.on('interactionCreate', async interaction => {
                 participantsArray.splice(participantsArray.indexOf(winner), 1);
             }
 
-            const winnerMentions = winners.length > 0 ? winners.map(id => `<@${id}>`).join(', ') : 'Keine Teilnehmer';
-            const resultEmbed = new EmbedBuilder()
-                .setColor(0x00FF00)
-                .setTitle('🏆 Gewinner 🏆')
-                .setDescription(`Gewinner: ${winnerMentions}`)
-                .setTimestamp();
-
-            await interaction.channel.send({ embeds: [resultEmbed] });
-
-            for (const winner of winners) {
-                const winnerUser = await client.users.fetch(winner);
-                await winnerUser.send(`Herzlichen Glückwunsch! Du hast das Giveaway mit dem Preis **${preis}** gewonnen! 🎉 Hier ist der Link zu deiner Gewinnbenachrichtigung: ${giveawayMessage.url}`);
-            }
-
-            const creatorUser = await client.users.fetch(interaction.user.id);
-            await creatorUser.send(`Dein Giveaway mit dem Preis **${preis}** ist abgeschlossen! Gewinner: ${winnerMentions}`);
+            const winnerMentions = winners.length ? winners.map(id => `<@${id}>`).join(', ') : 'Keine Teilnehmer';
+            await interaction.channel.send(`🎉 Giveaway beendet! Gewinner: ${winnerMentions}`);
         });
     }
 
-    if (interaction.customId === 'count') {
-        if (countingAllowed) {
-            const userId = interaction.user.id;
+    if (interaction.commandName === 'clear') {
+        const anzahl = interaction.options.getInteger('anzahl');
 
-            if (recentCounters.has(userId)) {
-                return interaction.reply({ content: 'Du kannst nicht zweimal hintereinander zählen!', ephemeral: true });
-            }
+        const fetched = await interaction.channel.messages.fetch({ limit: anzahl });
+        await interaction.channel.bulkDelete(fetched);
+        await interaction.reply({ content: `${anzahl} Nachrichten wurden gelöscht.`, ephemeral: true });
+    }
 
-            recentCounters.add(userId);
-            currentCount++;
-            saveCount();
-
-            interaction.reply({ content: `Aktuelle Zahl: ${currentCount}`, ephemeral: false });
-            countingAllowed = false;
-
-            setTimeout(() => {
-                countingAllowed = true;
-                recentCounters.clear();
-            }, 2000);
-        }
+    if (interaction.commandName === 'ping') {
+        await interaction.reply('Pong!');
     }
 });
 
-client.on('messageCreate', message => {
+client.on('messageCreate', async message => {
     if (message.channel.id === COUNTING_CHANNEL_ID) {
-        if (message.content.toLowerCase() === 'reset') {
-            currentCount = 0;
+        if (!countingAllowed || isNaN(message.content)) return;
+
+        const number = parseInt(message.content, 10);
+        if (number === currentCount + 1 && !recentCounters.has(message.author.id)) {
+            currentCount = number;
+            recentCounters.add(message.author.id);
+            setTimeout(() => recentCounters.delete(message.author.id), 5000);
             saveCount();
-            message.channel.send('Die Zählung wurde zurückgesetzt.');
+        } else {
+            await message.delete();
         }
+    } else if (message.content === '!ping') {
+        await message.reply('Pong!');
     }
 });
 
+console.log(commands)
 client.login(BOT_TOKEN);
