@@ -24,3 +24,5 @@ Built with Node.js
 - Music
 - Verification (unnecessary)
 - Invite Tracker
+- Warn System
+- /clear command
