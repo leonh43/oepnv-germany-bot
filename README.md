@@ -18,6 +18,7 @@ Built with Node.js
 
 ## Features in Development
 - Reaction roles (ole)
+- Warn System (Leon)
 
 ## Planned Features
 - Applications
@@ -26,4 +27,3 @@ Built with Node.js
 - Music
 - Verification (unnecessary)
 - Invite Tracker
-- Warn System
