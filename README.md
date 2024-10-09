@@ -4,7 +4,7 @@ Built with Node.js
 
 ## Roadmap (for the developers)
 - Make it work
-- Add features
+- Add features (Current)
 - Web interface
 
 ## Existing Features
