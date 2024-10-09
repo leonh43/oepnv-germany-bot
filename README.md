@@ -19,6 +19,7 @@ Built with Node.js
 ## Features in Development
 - Reaction roles (ole)
 - Warn System (Leon)
+- Logs (via Bot) (ole)
 
 ## Planned Features
 - Applications
