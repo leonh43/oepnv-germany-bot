@@ -8,7 +8,7 @@ Built with Node.js & discord.js
 
 ## Roadmap (for the developers)
 - Make it work
-- Add features (Current)
+- Add features (Current state of developing)
 - Web interface
 
 ## Existing Features
