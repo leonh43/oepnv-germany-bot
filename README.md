@@ -21,7 +21,6 @@ Built with Node.js & discord.js
 - Counting System (Not public, because Bot want´s to nerven me)
 
 ## Features in Development
-- Reaction roles (ole)
 - Warn System (Leon)
 - Logs (via Bot) (ole)
 
