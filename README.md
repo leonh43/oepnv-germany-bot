@@ -1,6 +1,6 @@
 # ÖPNV-Germany-Bot
 Private Discord bot  
-Built with Node.js
+Built with Node.js & discord.js
 
 ## Roadmap (for the developers)
 - Make it work
