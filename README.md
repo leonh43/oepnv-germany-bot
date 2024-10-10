@@ -21,7 +21,7 @@ Built with Node.js & discord.js
 - Counting System (Not public, because Bot want´s to nerven me)
 
 ## Features in Development
-- Warn System (Leon)
+- Giveaway Improvements (Leon)
 - Logs (via Bot) (ole)
 
 ## Planned Features
