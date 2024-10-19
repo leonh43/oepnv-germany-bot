@@ -12,7 +12,7 @@ const client = new Client({
 
 const GUILD_ID = '1104669016565489675';
 const CLIENT_ID = '1292565513771286589';
-const BOT_TOKEN = '' ; //Jedemal neu einfügen
+const BOT_TOKEN = process.env.BOT_TOKEN;
 const POLL_ROLE_ID = '1292712164599267349';
 const WELCOME_CHANNEL_ID = '1292874725370101822';
 const COUNTING_CHANNEL_ID = '1292892233326006323';
@@ -276,3 +276,19 @@ client.on('interactionCreate', async interaction => {
 });
 
 client.login(BOT_TOKEN);
+
+//ReplIt funciton
+//const express = require('express');
+//const app = express();
+
+//app.get('/', (req, res) => {
+//    res.send('Bot is alive!');
+//});
+
+//app.listen(3000, () => {
+//    console.log('Keep-alive server is running.');
+//});
+
+//setInterval(() => {
+//    require('http').get('https://replit.com/@Gamer443/oepnv-germany-bot?v=1');
+//}, 280000); // alle 4.66 Minuten
