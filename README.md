@@ -17,6 +17,7 @@ Built with Node.js & discord.js
 - Giveaway
 - /clear command
 - !Ping; /ping (Test command)
+- Advertisment Message
 
 - Counting System (Not public, because Bot want´s to nerven me)
 
