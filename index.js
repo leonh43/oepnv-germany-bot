@@ -12,10 +12,13 @@ const client = new Client({
 
 const GUILD_ID = '1104669016565489675';
 const CLIENT_ID = '1292565513771286589';
-const BOT_TOKEN = process.env.BOT_TOKEN;
+const BOT_TOKEN = 'Paste here!';
 const POLL_ROLE_ID = '1292712164599267349';
 const WELCOME_CHANNEL_ID = '1292874725370101822';
 const COUNTING_CHANNEL_ID = '1292892233326006323';
+
+const EMBED_CHANNEL_ID = '1292478431312744599';
+const EMBED_INTERVAL_MINUTES = 1440;
 
 let currentCount = 0;
 let countingAllowed = true;
@@ -122,9 +125,29 @@ const saveGiveaway = (giveaway) => {
     fs.writeFileSync('giveaways.json', JSON.stringify(giveaways));
 };
 
+const sendRegularEmbed = () => {
+    const embedChannel = client.channels.cache.get(EMBED_CHANNEL_ID);
+    if (!embedChannel) return;
+
+    const embed = new EmbedBuilder()
+        .setColor(0x3498DB)
+        .setTitle('ÖPNV Germany')
+        .setDescription('Wir bauen realistische ÖPNV-Strecken aus ganz Deutschland in Roblox nach.')
+        .addFields(
+            { name: 'Wir bieten', value: '• Freundliche Comunity\n• Aktives Staff Team\n• Und noch viel mehr...' },
+            { name: 'Discord Link', value: 'Joint gerne unserem Discord\nhttps://discord.gg/Wnpn4zfhGV' }
+        );
+
+
+    embedChannel.send({ embeds: [embed] });
+    console.log("Advertisment send")
+};
+
 client.once('ready', () => {
     console.log('Bot is online!');
     loadCount();
+
+    setInterval(sendRegularEmbed, EMBED_INTERVAL_MINUTES * 60 * 1000);
 });
 
 client.on('guildMemberAdd', async member => {
